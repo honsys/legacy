@@ -1,0 +1,175 @@
+/**
+\verbatim
+$Name:  $ $Id: README,v 1.11 2012/08/07 18:13:28 dhon Exp $
+\endverbatim
+
+\defgroup mod_ahhxisgd HXI and SGD Instrument First to second FITS file (FFF to SFF) Reformatting App. (hxisgdsff)
+@ingroup mod_hxisgd_tasks
+
+This Build 1.0 release should compile on Linux (SL 5 and 6) and MACOS.
+
+The HXI ans SGD telemetry FITS files have similar formats and can
+be processed in similar fashions. Consequently a single FTool called
+"hxisgdff" has been developed to accomodate both instrument's first
+FITS file (mostly telemetry) data pre-pipeline processing, in one 
+Ftool application.
+
+A Perl script "ahsysinfo" should be included in the Build 1.0 release
+that provides some version info. extracted from the Ftool binary
+app. An exampe of its printout is appended below.
+
+The FITS file prcessing via this Ftool requires the minimal set
+of standard AstroH parameter file values. The nature of the
+processing is mostly "data-driven". This means that the bulk
+of the runtime behavior is determined by the contents of the
+input FITS data file. This includes HDU keywords, and importantly,
+the bitset values read and decoded directly out of the "raw data"
+variable length binary table column cells. This raw data
+is essentially instrument telemetry (TLM) extracted whithout
+modification from the spacecraft (S/C) downloaded CCSDS packets,
+into a FITS binary table file.
+
+Here is a typical par-file (hxisgdsff.par):
+# begin hxisgdsff.par
+clobber, b, h, yes, , , "Overwrite existing output file?"
+precheck, b, h, no, , , "Check pre-requisites?"
+templatefile, f, a, "./input/HXI_SF2012June.tpl", , , "Enter the HXI FITS Template file name"
+infile, f, a, "./input/01ahHXI_tlm.fits", , , "Enter the input HXI FITS file name"
+outfile, f, a, "./output/01ahHXI_tlm_extract.fits", , , "Enter the output HXI FITS file name"
+mode, s, h, "ql", , , "Mode of automatic parameters"
+# end hxisgdsff.par
+
+There are 6 fully self contained unit tests of the hxisgdsff Ftool,
+where one can simple invoke "aht -t" (in each respective sub-directory).
+The tests described here, however,  may be performed manually by the usual 
+UNIX shell command-line invocation of a standard HEADAS Ftool application.
+
+There are three ready-made PFILE paramater files here for each instrument, 
+meant to support testing of the hxisgdsff Ftool app. Please note that the
+'hmake install' should have placed a default version of the hxisgd.par
+file under $HEADAS/syspfiles, and another version may also reside
+under one's $HOME/pfiles. It may be necessary to delete both those
+versions of the paramater files to ensure that the Ftool application
+reads these "local" (current working directory) versions. One should
+also double-check the setting of the $PFILES environment variable.
+
+Process HXI data via HXI FITS temeplate:
+hxisf_yy.par -- precheck and clobber set to yes.
+hxisf_nn.par -- precheck and clobber set to no.
+hxisf_ny.par -- precheck set to no, clobber to yes.
+
+To test with one, please set a symlink (depending on one's PFILE
+environmet setting, it may be necessary to set and reset the
+symlink indicated below with one's ~/pfiles directory):
+
+ln -s hxisf_yy.par hxisgdsff.par
+
+and optionally remove or empty/clear any pre-existing subdirectories:
+./input ./output ./expected_output.
+
+Run the (local) hxisgdsff binary with both clobber and precheck true,
+to produce the default input test FITS file, template, and expected
+output file (assuming the binary is located in one's current working
+directory):
+
+./hxisgdsff
+
+This should initialize and populate ./input ./expected_output (with internally
+generated test/fake telemetry FITS files) and an empty ./output directory.
+
+Then reset the synlink:
+
+unlink hxisgdsff.par
+ln -s hxisf_nn.par hxisgdsff.par
+
+Run the hxisgdsff ftool with clobber and precheck set to no (assuming
+the binary is located in one's current working directory):
+
+./hxisgdsff
+
+This should process the test input file and create an output file in ./output 
+that can be verified against the file in ./expected_output via "ftverify".
+
+Iterative tests can be performed by the "ny" parfile:
+
+ln -s hxisf_ny.par hxisgdsff.par
+
+Similarly, process SGD telemetry via hxisgdsff with these parfile:
+sgdsf_nn.par
+sgdsf_ny.par
+sgdsf_yy.par
+
+Please note that name of the FITS template file and the FITS HDU keyword 
+"INSTRUME" are checked to validate which instrument is meant to be processed
+(HXI vs. SGD).
+
+There are also 6 pre-generated test input FITS files currently stored in the
+CVS repository. The hxitest and sgdtest subdirectories under the hxisgd/tasks/hxisgdsff 
+source should each provide 3 test files -- containing one to three row b-table HDUs.
+
+Finally, feel free to check the version info for the tool runtime and its library 
+dependencies via the Perl script "ahsysinfo". Below is the result from a Scientific
+Linux environment of "ahsysinfo hxisgdsff". Ahsysinfo may also be used to inspect
+a runtime library as well as an application binary. Please note that to avoid
+cvs/rcs keyword substition in the "verbatim" section below, the '$' character has
+been removed.
+
+\verbatim
+
+ ------------------------ Astro-H Software Host: gs66-xen.gsfc.nasa.gov -------------------- 
+Linux xen 2.6.32-220.23.1.el6.x86_64 #1 SMP Mon Jun 18 09:58:09 CDT 2012 x86_64 x86_64 x86_64 GNU/Linux
+
+This is perl 5, version 14, subversion 2 (v5.14.2) built for x86_64-linux-thread-multi
+ 
+Using built-in specs.
+Target: x86_64-redhat-linux
+Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-languages=c,c++,objc,obj-c++,java,fortran,ada --enable-java-awt=gtk --disable-dssi --with-java-home=/usr/lib/jvm/java-1.5.0-gcj-1.5.0.0/jre --enable-libgcj-multifile --enable-java-maintainer-mode --with-ecj-jar=/usr/share/java/eclipse-ecj.jar --disable-libjava-multilib --with-ppl --with-cloog --with-tune=generic --with-arch_32=i686 --build=x86_64-redhat-linux
+Thread model: posix
+gcc version 4.4.6 20110731 (Red Hat 4.4.6-3) (GCC) 
+ 
+	linux-vdso.so.1 =>  (0x00007fff83dff000)
+	libahhxi.so => /local/data/xen2/dhon/aug2012/AstroH_B01/headas/x86_64-unknown-linux-gnu-libc2.12/lib/libahhxi.so (0x00007fb55b158000)
+	libahsgd.so => /local/data/xen2/dhon/aug2012/AstroH_B01/headas/x86_64-unknown-linux-gnu-libc2.12/lib/libahsgd.so (0x00007fb55af16000)
+	libahtlm.so => /local/data/xen2/dhon/aug2012/AstroH_B01/headas/x86_64-unknown-linux-gnu-libc2.12/lib/libahtlm.so (0x00007fb55acc3000)
+	libahfits.so => /local/data/xen2/dhon/aug2012/AstroH_B01/headas/x86_64-unknown-linux-gnu-libc2.12/lib/libahfits.so (0x00007fb55aa9d000)
+	libahmath.so => /local/data/xen2/dhon/aug2012/AstroH_B01/headas/x86_64-unknown-linux-gnu-libc2.12/lib/libahmath.so (0x00007fb55a898000)
+	libahgen.so => /local/data/xen2/dhon/aug2012/AstroH_B01/headas/x86_64-unknown-linux-gnu-libc2.12/lib/libahgen.so (0x00007fb55a695000)
+	libahlog.so => /local/data/xen2/dhon/aug2012/AstroH_B01/headas/x86_64-unknown-linux-gnu-libc2.12/lib/libahlog.so (0x00007fb55a48f000)
+	libst_stream.so => /local/data/xen2/dhon/aug2012/AstroH_B01/headas/x86_64-unknown-linux-gnu-libc2.12/lib/libst_stream.so (0x00007fb55a27d000)
+	libhdinit_2.6.so => /local/data/xen2/dhon/aug2012/AstroH_B01/headas/x86_64-unknown-linux-gnu-libc2.12/lib/libhdinit_2.6.so (0x00007fb55a07a000)
+	libhdutils_2.6.so => /local/data/xen2/dhon/aug2012/AstroH_B01/headas/x86_64-unknown-linux-gnu-libc2.12/lib/libhdutils_2.6.so (0x00007fb559e5f000)
+	libape_2.8.so => /local/data/xen2/dhon/aug2012/AstroH_B01/headas/x86_64-unknown-linux-gnu-libc2.12/lib/libape_2.8.so (0x00007fb559c19000)
+	libcfitsio_3.29.so => /local/data/xen2/dhon/aug2012/AstroH_B01/headas/x86_64-unknown-linux-gnu-libc2.12/lib/libcfitsio_3.29.so (0x00007fb559846000)
+	libreadline.so.6 => /lib64/libreadline.so.6 (0x00000036dfa00000)
+	libhdio_2.6.so => /local/data/xen2/dhon/aug2012/AstroH_B01/headas/x86_64-unknown-linux-gnu-libc2.12/lib/libhdio_2.6.so (0x00007fb559620000)
+	libpthread.so.0 => /lib64/libpthread.so.0 (0x00000036dce00000)
+	libtinfo.so.5 => /lib64/libtinfo.so.5 (0x00000036eca00000)
+	libdl.so.2 => /lib64/libdl.so.2 (0x00000036dca00000)
+	libnsl.so.1 => /lib64/libnsl.so.1 (0x00000036ec200000)
+	libstdc++.so.6 => /usr/lib64/libstdc++.so.6 (0x00000036e3600000)
+	libm.so.6 => /lib64/libm.so.6 (0x00000036dc600000)
+	libgcc_s.so.1 => /lib64/libgcc_s.so.1 (0x00000036e2e00000)
+	libc.so.6 => /lib64/libc.so.6 (0x00000036dc200000)
+	/lib64/ld-linux-x86-64.so.2 (0x00000036dbe00000)
+ 
+Id: ahBits.h,v 1.7 2012/07/30 16:56:49 dhon Exp 
+Id: ahhxisgd.h,v 1.10 2012/07/18 16:41:21 dhon Exp 
+Id: ahHXItyps.h,v 1.14 2012/07/20 20:58:49 dhon Exp 
+Id: ahSGDtyps.h,v 1.12 2012/07/22 18:14:44 dhon Exp 
+Id: ahSlice.h,v 1.7 2012/07/30 16:56:49 dhon Exp 
+Id: ahTLM.h,v 1.16 2012/07/22 18:14:44 dhon Exp 
+Id: ahTLMinfoCache.h,v 1.4 2012/07/19 21:55:06 dhon Exp 
+Id: ahTLMIO.h,v 1.3 2012/07/11 21:16:02 dhon Exp 
+Name: AstroH_B01 $ $Id: doInstrum.cxx,v 1.8 2012/07/18 16:41:21 dhon Exp 
+Name: AstroH_B01 $ $Id: doWork.cxx,v 1.11 2012/07/18 16:41:21 dhon Exp 
+Name: AstroH_B01 $ $Id: finalize.cxx,v 1.5 2012/06/28 19:24:17 dhon Exp 
+Name: AstroH_B01 $ $Id: getPar.cxx,v 1.11 2012/07/19 17:11:36 peachey Exp 
+Name: AstroH_B01 $ $Id: hxisgdsff.cxx,v 1.8 2012/07/10 21:29:55 dhon Exp 
+Name: AstroH_B01 $ $Id: initialize.cxx,v 1.13 2012/07/18 16:41:21 dhon Exp 
+Name: AstroH_B01 $ $Id: shutDown.cxx,v 1.5 2012/07/17 19:08:50 dhon Exp 
+Name: AstroH_B01 $ $Id: startUp.cxx,v 1.8 2012/07/19 17:09:35 peachey Exp 
+
+\endverbatim
+
+*/
+

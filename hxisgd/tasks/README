@@ -1,0 +1,9 @@
+$Name:  $ $Id: README,v 1.4 2012/07/27 17:34:51 dhon Exp $
+
+Build 1.0 provides a single Ftool under the tasks source: hxisgdsff.
+Please refer to the README file there (the tasks/hxisgdsff sub-directory)
+for more release info.
+
+Also, some READMEs are TBD, and additional documentation produced
+by Doxygen is in progress.
+

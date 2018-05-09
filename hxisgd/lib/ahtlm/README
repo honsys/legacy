@@ -1,0 +1,114 @@
+/**
+\defgroup mod_ahtlm Telemetry Library (ahtlm)
+@ingroup mod_hxisgd_lib
+
+
+The "libahtlm" library is the fundamental collection of functions and data structures which support both
+HXI and SGD instrument calibration software. This includes all raw data telemetry (TLM) input/output (I/O)
+and bitset operations required to process the first FITS file (FFF). All the functions in this library a built
+into the "ahtlm" namespace. Many functions in the ahtlm library rely directly on the CFITSIO library and/or the
+ahfits library, as well as the the C and C++ standard libraries.
+
+The ahtlm library functions and data structures are used extensively by each instrument's specific libary:
+"libahhxi" and "libahsgd". As development proceeds with the HXI and SGD calibration software, functionality
+that can be "refactored" from specific to general will migrate from the two instrument libraries (ahhxi and ahsgd)
+into libahtlm. Also, some functions and data structures that can be generalized for the Astro-H mission will
+be refactored from libahtlm into the "mission" or "gen" libraries.
+
+
+Differences between SGD and HXI TLM organization and content
+
+1.) nHitASICs: While the HXI has 40 ASICs, the SGD has 624. The HXI TLM reserves 8 bits, but the SGD TLM must be at least 10 bits.
+SEU, CHIP, TRG, etc.: The HXI TLM bit-flags that follow the nHitASICS 8 bit integer and precede the ASIS Id bitset may differ for SGD (potentially more bit-flags like "busyCC").
+    
+2.) ASIC ID: While the HXI ASIC Id per layer and Layer Id fits into two adjacent 4 bit TLM bit-sets, the SGD ASIC Ids require more TBD bits.
+Active Channel Bit-flags: Each HXI ASIC TLM (sub)buffer holds a 32 bit bit-set, while SGD must use a 64 bit bit-set.
+All other HXI and SGD TLM bits: are 10 bit bit-sets for noise and reference channels and ADC values. But SGD's buffer lengths (i.e. the number of ADC values) may considerably exceed HXI's.
+
+
+Differences between SGD and HXI FITS file binary table columns and respective FITS templates
+
+1.) HXI and SGD variable length columns have substantially different maximum allowed lengths -- which must be indicated in the FITS template spec., and also provide runtime exception checks.
+   
+2.) SGD and HXI may have a few different columns.
+Although many SGD and HXI columns names are identical, the content values (e.g. the max. remapped ASIC and Channel Ids) will differ and should be checked during runtime for exceptions.
+
+
+Fundamental assumptions about the nature of the telemetry (TLM) stream, i.e. variable length ASIC buffers, and bit-field alignments.
+
+Please note there really should be some sort of interface control document (ICD) or operational interface agreement
+document (OIA) that describes the expected First Fits File (FFF) format and content in detail.
+
+0.) The entire "RAW DATA" TLM buffer must be an integral number of 16 bit words (thus an even number of 8 bit bytes).
+
+1.) Individual bit-fields that are sized to an integral number of 8 bit bytes (8, 16, 24, 32 bits etc.) and are meant to
+be interpreted as integers, are assumed to be Little-Endian.
+
+2.) The 10 bit noise and ref. channel bit-fields are meant to be interpreted as Little-Endian integers.
+
+3.) The 10 bit ADC values are meant to be interpreted as Little-Endian integers.
+
+4.) Individual bit-fields, which are mapped into fixed-length C++ "bitset" data types, appear in the following sizes as
+defined by these typedefs (see ahBits.h):
+
+typedef std::bitset<1> Bits1;
+typedef std::bitset<2> Bits2;
+typedef std::bitset<3> Bits3;
+typedef std::bitset<4> Bits4;
+typedef std::bitset<5> Bits5;
+typedef std::bitset<6> Bits6;
+typedef std::bitset<8> Bits8;
+typedef std::bitset<10> Bits10;
+typedef std::bitset<16> Bits16;
+typedef std::bitset<24> Bits24;
+typedef std::bitset<32> Bits32;
+typedef std::bitset<64> Bits64;
+
+Other sizes are TBD.
+
+5.) 8 bit,, 16 bit, 32 bit and 64 bit bit-fields are aligned within 16-bit word boundaries, and thus may be
+found ("seek") via a single byte offset integer value that starts at the head of TLM buffer at byte_offset 0.
+
+6.) Bit-fields that are greater than 8 bits and less than 16 bits may span 16-bit word boundaries, and thus
+must be found ("seek") via a byte offset and subsequent bit offset (the latter may be 0) that starts at the head
+of TLM buffer at byte_offset 0 and bit_offset 0. This applies to all ADC values.
+
+7.) Bit-fields that are greater than 16 bits and less than 32 bits may span 16-bit word boundaries, and thus
+must be found ("seek") via a byte offset and subsequent bit offset (the latter may be 0) that starts at the head
+of TLM buffer at byte_offset 0 and bit_offset 0. Although 24 bit integers should be an exception that only requires
+a byte_offset.
+
+Discussion of other assumptions is TBD.
+Edit
+Library Synopsis
+
+The following briefly describes libahtlm functionality. A more detailed Doxygen document shall be provided
+with the source code release.
+
+Please note that most of the code is C, but with some modest reliance on C++ standard library elements. The
+C++ string, bitset and vector and hash-map data-types are extremely useful for all Astro-H code, not just
+TLM FFF processing.This modest amount of C++ (std::bitset, std::vector, std::map, std::string, and std::exception)
+requires that all source files be compiled with the C++ (g++) compiler. This is achieved by the standard hmakee/gmake
+file naming convention '*.cxx'.
+
+The Build 1.0 release of libahtlm C/C++ code is comprised of the following header and source files
+
+Data structures and function declarations:
+
+./ahtlm/ahtlm/ahSlice.h -- fundamental data structures and functions that store and manage TLM data buffs. of various types.
+./ahtlm/ahtlm/ahTLM.h -- ahSlice extension structs and functions that support CFITSIO interfaces.
+./ahtlm/ahtlm/ahBits.h -- all bitset structs and functions to decode (and encode) bitsets.
+./ahtlm/ahtlm/ahTLMinfoCache.h -- FITS HDU and binary table column information management.
+./ahtlm/ahtlm/ahTLMIO.h -- FITS I/O specializations for ahSlice and ahTLM and ahBIts data structures.
+./ahsgd/ahsgd/ahSGDtyps.h -- SGD instrument specific functions and data structures.
+./ahhxi/ahhxi/ahHXItyps.h -- HXI instrument specific functions and data structures.
+
+Implementation of all declared functions:
+
+./ahtlm/src/ahTLMIO.cxx -- CFITSIO "void *" access to the TLM buffers and "slices"
+./ahtlm/src/ahTLM.cxx -- specialized TLM buffer logic.
+./ahtlm/src/ahBits.cxx -- specialized fixed and arbitrary length bitset (encode and decode) logic.
+./ahtlm/src/ahSlice.cxx -- TLM sub-buffer variable length "slice" logic.
+./ahtlm/src/ahTLMinfoCache.cxx -- misc. FITS header/HDU access, table column info., and such.
+
+*/

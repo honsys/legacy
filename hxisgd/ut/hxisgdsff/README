@@ -1,0 +1,123 @@
+There are six (6) unit tests of the "hxisgdsff" Ftool currently setup here for AstroH build 1.0,
+each in its own sub-directory with its own Astro-H text manifest "aht_manifest.pl":
+
+./ut01hxi/aht_manifest.pl
+./ut02sgd/aht_manifest.pl
+./ut03hxi/aht_manifest.pl
+./ut02hxi/aht_manifest.pl
+./ut03sgd/aht_manifest.pl
+./ut01sgd/aht_manifest.pl
+
+If the Astro-H hmake build has been performed, there should be a testable set of Ftools
+in one's (reset) $HEADAS/bin, including the "aht" test script.
+
+Please "cd" or "pushd" to each subdirectory and run the installed $HEADAS/bin/aht unit test
+script via:
+
+"aht -t"
+
+The above invocation should parse the ./aht_manifest.pl file and attempt to perform the unit test
+and output validation described by the manifest.
+
+For example, doing so in each of the unit test sub-directories should yield something like
+the recurive directory lising shown below:
+
+./ut01hxi
+./ut01hxi/input
+./ut01hxi/log
+./ut01hxi/expected_output
+./ut01hxi/expected_output/stdout
+./ut01hxi/expected_output/stderr
+./ut01hxi/etc
+./ut01hxi/xen.gsfc.nasa.gov
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.25.36
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.25.36/input
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.25.36/output
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.25.36/output/stdout
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.25.36/output/stderr
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.11.30
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.11.30/input
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.11.30/output
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.11.30/output/stdout
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.11.30/output/stderr
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.14.40
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.14.40/input
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.14.40/output
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.14.25
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.14.25/output
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.14.25/output/stdout
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.14.25/output/stderr
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.15.47
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.15.47/input
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.15.47/output
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.15.47/output/stdout
+./ut01hxi/xen.gsfc.nasa.gov/2012Jul26/15.15.47/output/stderr
+./ut01hxi/cache
+./ut02sgd
+./ut02sgd/input
+./ut02sgd/log
+./ut02sgd/expected_output
+./ut02sgd/etc
+./ut02sgd/xen.gsfc.nasa.gov
+./ut02sgd/xen.gsfc.nasa.gov/2012Jul26
+./ut02sgd/xen.gsfc.nasa.gov/2012Jul26/15.43.38
+./ut02sgd/xen.gsfc.nasa.gov/2012Jul26/15.43.38/input
+./ut02sgd/xen.gsfc.nasa.gov/2012Jul26/15.43.38/output
+./ut02sgd/xen.gsfc.nasa.gov/2012Jul26/15.43.38/output/stdout
+./ut02sgd/xen.gsfc.nasa.gov/2012Jul26/15.43.38/output/stderr
+./ut02sgd/cache
+./ut03hxi
+./ut03hxi/input
+./ut03hxi/log
+./ut03hxi/expected_output
+./ut03hxi/etc
+./ut03hxi/xen.gsfc.nasa.gov
+./ut03hxi/xen.gsfc.nasa.gov/2012Jul26
+./ut03hxi/xen.gsfc.nasa.gov/2012Jul26/15.33.52
+./ut03hxi/xen.gsfc.nasa.gov/2012Jul26/15.33.52/input
+./ut03hxi/xen.gsfc.nasa.gov/2012Jul26/15.33.52/output
+./ut03hxi/xen.gsfc.nasa.gov/2012Jul26/15.33.52/output/stdout
+./ut03hxi/xen.gsfc.nasa.gov/2012Jul26/15.33.52/output/stderr
+./ut03hxi/cache
+./ut02hxi
+./ut02hxi/input
+./ut02hxi/log
+./ut02hxi/expected_output
+./ut02hxi/etc
+./ut02hxi/xen.gsfc.nasa.gov
+./ut02hxi/xen.gsfc.nasa.gov/2012Jul26
+./ut02hxi/xen.gsfc.nasa.gov/2012Jul26/15.31.22
+./ut02hxi/xen.gsfc.nasa.gov/2012Jul26/15.31.22/input
+./ut02hxi/xen.gsfc.nasa.gov/2012Jul26/15.31.22/output
+./ut02hxi/xen.gsfc.nasa.gov/2012Jul26/15.31.22/output/stdout
+./ut02hxi/xen.gsfc.nasa.gov/2012Jul26/15.31.22/output/stderr
+./ut02hxi/cache
+./ut03sgd
+./ut03sgd/input
+./ut03sgd/log
+./ut03sgd/expected_output
+./ut03sgd/etc
+./ut03sgd/xen.gsfc.nasa.gov
+./ut03sgd/xen.gsfc.nasa.gov/2012Jul26
+./ut03sgd/xen.gsfc.nasa.gov/2012Jul26/15.40.50
+./ut03sgd/xen.gsfc.nasa.gov/2012Jul26/15.40.50/input
+./ut03sgd/xen.gsfc.nasa.gov/2012Jul26/15.40.50/output
+./ut03sgd/xen.gsfc.nasa.gov/2012Jul26/15.40.50/output/stdout
+./ut03sgd/xen.gsfc.nasa.gov/2012Jul26/15.40.50/output/stderr
+./ut03sgd/cache
+./ut01sgd
+./ut01sgd/input
+./ut01sgd/log
+./ut01sgd/expected_output
+./ut01sgd/etc
+./ut01sgd/xen.gsfc.nasa.gov
+./ut01sgd/xen.gsfc.nasa.gov/2012Jul26
+./ut01sgd/xen.gsfc.nasa.gov/2012Jul26/15.46.41
+./ut01sgd/xen.gsfc.nasa.gov/2012Jul26/15.46.41/input
+./ut01sgd/xen.gsfc.nasa.gov/2012Jul26/15.46.41/output
+./ut01sgd/xen.gsfc.nasa.gov/2012Jul26/15.46.41/output/stdout
+./ut01sgd/xen.gsfc.nasa.gov/2012Jul26/15.46.41/output/stderr
+./ut01sgd/cache
+
+

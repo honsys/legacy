@@ -1,0 +1,29 @@
+/**
+\defgroup mod_ahhxi HXI Instrument Library (ahhxi)
+@ingroup mod_hxisgd_lib
+
+Like the sibling SGD runtime library, this library is a fairly thin layer over the TLM library, with specific HXI
+constants, data structures, and functions. 
+
+Please note that most of the code is C, but with some modest reliance on C++ standard library elements. The
+C++ string, bitset and vector and hash-map data-types are extremely useful for all Astro-H code, not just
+TLM FFF processing.This modest amount of C++ (std::bitset, std::vector, std::map, std::string, and std::exception)
+requires that all source files be compiled with the C++ (g++) compiler. This achieved by the standard hmake/gmake
+file naming convention '*.cxx'.
+
+The Build 1.0 release of libahhxi C/C++ code is comprised of the following header and source files:
+
+1.) ./ahhxi/ahhxi/ahHXItyps.h -- declares all data structures and functions.
+
+1.) ./ahhxi/src/doHXItest.cxx -- implements all functions that support test (HXI) data generation
+2.) ./ahhxi/src/ioHXI.cxx -- implements all functions that support FITS IO, a simple layer over the TLM I/O funcs.
+3.) ./ahhxi/src/doHXI.cxx -- implements HXI specific work functions.
+4.) ./ahhxi/src/HXItemplate.cxx -- provides a built-in self-consitent FITS template file.
+4.) ./ahhxi/src/lutHXI.cxx -- implements critical function that examine the ASIC 32 bit active channel bit-flags
+to construct a runtime lookup table (LUT) used by the work functions to access specific ASIC channel 10 data elements.
+The (row) buffer containing all the raw TLM data of an "occurrence" is passed to each work function, along with the 
+active channel LUT. The runtime LUT allows various work functions to perform direct random or sequential access to 
+arbitrary elements within the contiguous memory buffer. HXI TLM memory buffers are considerably smaller than SGD's 
+and thus offset ranges will differ.
+
+*/

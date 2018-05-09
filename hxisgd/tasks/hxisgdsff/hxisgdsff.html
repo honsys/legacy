@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta content="text/html; charset=ISO-8859-1"
+      http-equiv="Content-Type">
+    <title>hxisgdsff.html</title>
+  </head>
+  <body>
+    <pre>
+
+This Build 1.0 release should compile on Linux (SL 5 and 6) and MACOS.
+
+The HXI ans SGD telemetry FITS files have similar formats and can
+be processed in similar fashions. Consequently a single FTool called
+"hxisgdff" has been developed to accomodate both instrument's first
+FITS file (mostly telemetry) data pre-pipeline processing, in one 
+Ftool application.
+
+A Perl script "ahsysinfo" should be included in the Build 1.0 release
+that provides some version info. extracted from the Ftool binary
+app. An exampe of its printout is appended below.
+
+The FITS file prcessing via this Ftool requires the minimal set
+of standard AstroH parameter file values. The nature of the
+processing is mostly "data-driven". This means that the bulk
+of the runtime behavior is determined by the contents of the
+input FITS data file. This includes HDU keywords, and importantly,
+the bitset values read and decoded directly out of the "raw data"
+variable length binary table column cells. This raw data
+is essentially instrument telemetry (TLM) extracted whithout
+modification from the spacecraft (S/C) downloaded CCSDS packets,
+into a FITS binary table file.
+
+Here is a typical par-file (hxisgdsff.par):
+# begin hxisgdsff.par
+clobber, b, h, yes, , , "Overwrite existing output file?"
+precheck, b, h, no, , , "Check pre-requisites?"
+templatefile, f, a, "./input/HXI_SF2012June.tpl", , , "Enter the HXI FITS Template file name"
+infile, f, a, "./input/01ahHXI_tlm.fits", , , "Enter the input HXI FITS file name"
+outfile, f, a, "./output/01ahHXI_tlm_extract.fits", , , "Enter the output HXI FITS file name"
+mode, s, h, "ql", , , "Mode of automatic parameters"
+# end hxisgdsff.par
+
+There are 6 fully self contained unit tests of the hxisgdsff Ftool,
+where one can simple invoke "aht -t" (in each respective sub-directory).
+The tests described here, however,  may be performed manually by the usual 
+UNIX shell command-line invocation of a standard HEADAS Ftool application.
+
+There are three ready-made PFILE paramater files here for each instrument, 
+meant to support testing of the hxisgdsff Ftool app. Please note that the
+'hmake install' should have placed a default version of the hxisgd.par
+file under $HEADAS/syspfiles, and another version may also reside
+under one's $HOME/pfiles. It may be necessary to delete both those
+versions of the paramater files to ensure that the Ftool application
+reads these "local" (current working directory) versions. One should
+also double-check the setting of the $PFILES environment variable.
+
+Process HXI data via HXI FITS temeplate:
+hxisf_yy.par -- precheck and clobber set to yes.
+hxisf_nn.par -- precheck and clobber set to no.
+hxisf_ny.par -- precheck set to no, clobber to yes.
+
+To test with one, please set a symlink (depending on one's PFILE
+environmet setting, it may be necessary to set and reset the
+symlink indicated below with one's ~/pfiles directory):
+
+ln -s hxisf_yy.par hxisgdsff.par
+
+and optionally remove or empty/clear any pre-existing subdirectories:
+./input ./output ./expected_output.
+
+Run the (local) hxisgdsff binary with both clobber and precheck true,
+to produce the default input test FITS file, template, and expected
+output file (assuming the binary is located in one's current working
+directory):
+
+./hxisgdsff
+
+This should initialize and populate ./input ./expected_output (with internally
+generated test/fake telemetry FITS files) and an empty ./output directory.
+
+Then reset the synlink:
+
+unlink hxisgdsff.par
+ln -s hxisf_nn.par hxisgdsff.par
+
+Run the hxisgdsff ftool with clobber and precheck set to no (assuming
+the binary is located in one's current working directory):
+
+./hxisgdsff
+
+This should process the test input file and create an output file in ./output 
+that can be verified against the file in ./expected_output via "ftverify".
+
+Iterative tests can be performed by the "ny" parfile:
+
+ln -s hxisf_ny.par hxisgdsff.par
+
+Similarly, process SGD telemetry via hxisgdsff with these parfile:
+sgdsf_nn.par
+sgdsf_ny.par
+sgdsf_yy.par
+
+Please note that name of the FITS template file and the FITS HDU keyword 
+"INSTRUME" are checked to validate which instrument is meant to be processed
+(HXI vs. SGD).
+
+There are also 6 pre-generated test input FITS files currently stored in the
+CVS repository. The hxitest and sgdtest subdirectories under the hxisgd/tasks/hxisgdsff 
+source should each provide 3 test files -- containing one to three row b-table HDUs.
+
+Finally, feel free to check the version info for the tool runtime and its library 
+dependencies via the Perl script "ahsysinfo". Below is the result from a Scientific
+Linux environment of "ahsysinfo hxisgdsff" (ahsysinfo may also be used to inspect
+a runtime library as well as an application binary).
+
+ ------------------------ Astro-H Software Host: gs66-xen.gsfc.nasa.gov -------------------- 
+Linux xen 2.6.32-220.23.1.el6.x86_64 #1 SMP Mon Jun 18 09:58:09 CDT 2012 x86_64 x86_64 x86_64 GNU/Linux
+
+This is perl 5, version 14, subversion 2 (v5.14.2) built for x86_64-linux-thread-multi
+ 
+ 
+	linux-vdso.so.1 =>  (0x00007fff475ff000)
+	libahhxi.so => /Home/xtelab/dhon/local/headev/x86_64-unknown-linux-gnu-libc2.12/lib/libahhxi.so (0x00002aee3edd5000)
+	libahsgd.so => /Home/xtelab/dhon/local/headev/x86_64-unknown-linux-gnu-libc2.12/lib/libahsgd.so (0x00002aee3f011000)
+	libahtlm.so => /Home/xtelab/dhon/local/headev/x86_64-unknown-linux-gnu-libc2.12/lib/libahtlm.so (0x00002aee3f251000)
+	libahfits.so => /Home/xtelab/dhon/local/headev/x86_64-unknown-linux-gnu-libc2.12/lib/libahfits.so (0x00002aee3f4a2000)
+	libahmath.so => /Home/xtelab/dhon/local/headev/x86_64-unknown-linux-gnu-libc2.12/lib/libahmath.so (0x00002aee3f6c7000)
+	libahgen.so => /Home/xtelab/dhon/local/headev/x86_64-unknown-linux-gnu-libc2.12/lib/libahgen.so (0x00002aee3f8cc000)
+	libahlog.so => /Home/xtelab/dhon/local/headev/x86_64-unknown-linux-gnu-libc2.12/lib/libahlog.so (0x00002aee3facf000)
+	libst_stream.so => /Home/xtelab/dhon/local/headev/x86_64-unknown-linux-gnu-libc2.12/lib/libst_stream.so (0x00002aee3fcd9000)
+	libhdinit_2.6.so => /Home/xtelab/dhon/local/headev/x86_64-unknown-linux-gnu-libc2.12/lib/libhdinit_2.6.so (0x00002aee3feeb000)
+	libhdutils_2.6.so => /Home/xtelab/dhon/local/headev/x86_64-unknown-linux-gnu-libc2.12/lib/libhdutils_2.6.so (0x00002aee400ee000)
+	libape_2.8.so => /Home/xtelab/dhon/local/headev/x86_64-unknown-linux-gnu-libc2.12/lib/libape_2.8.so (0x00002aee40309000)
+	libcfitsio_3.29.so => /Home/xtelab/dhon/local/headev/x86_64-unknown-linux-gnu-libc2.12/lib/libcfitsio_3.29.so (0x00002aee4054f000)
+	libreadline.so.6 => /lib64/libreadline.so.6 (0x00000037f3400000)
+	libhdio_2.6.so => /Home/xtelab/dhon/local/headev/x86_64-unknown-linux-gnu-libc2.12/lib/libhdio_2.6.so (0x00002aee40942000)
+	libpthread.so.0 => /lib64/libpthread.so.0 (0x00000030b8400000)
+	libtinfo.so.5 => /lib64/libtinfo.so.5 (0x00000037f2a00000)
+	libdl.so.2 => /lib64/libdl.so.2 (0x00000030b8000000)
+	libnsl.so.1 => /lib64/libnsl.so.1 (0x00000030c8600000)
+	libstdc++.so.6 => /usr/lib64/libstdc++.so.6 (0x00000030be800000)
+	libm.so.6 => /lib64/libm.so.6 (0x00000030b7c00000)
+	libgcc_s.so.1 => /lib64/libgcc_s.so.1 (0x00000030be400000)
+	libc.so.6 => /lib64/libc.so.6 (0x00000030b7800000)
+	/lib64/ld-linux-x86-64.so.2 (0x00000030b7400000)
+ 
+$Id: hxisgdsff.html,v 1.2 2012/07/31 17:40:27 dhon Exp $
+$Id: hxisgdsff.html,v 1.2 2012/07/31 17:40:27 dhon Exp $
+$Id: hxisgdsff.html,v 1.2 2012/07/31 17:40:27 dhon Exp $
+$Id: hxisgdsff.html,v 1.2 2012/07/31 17:40:27 dhon Exp $
+$Id: hxisgdsff.html,v 1.2 2012/07/31 17:40:27 dhon Exp $
+$Id: hxisgdsff.html,v 1.2 2012/07/31 17:40:27 dhon Exp $
+$Id: hxisgdsff.html,v 1.2 2012/07/31 17:40:27 dhon Exp $
+$Id: hxisgdsff.html,v 1.2 2012/07/31 17:40:27 dhon Exp $
+$Name:  $ $Id: hxisgdsff.html,v 1.2 2012/07/31 17:40:27 dhon Exp $
+$Name:  $ $Id: hxisgdsff.html,v 1.2 2012/07/31 17:40:27 dhon Exp $
+$Name:  $ $Id: hxisgdsff.html,v 1.2 2012/07/31 17:40:27 dhon Exp $
+$Name:  $ $Id: hxisgdsff.html,v 1.2 2012/07/31 17:40:27 dhon Exp $
+$Name:  $ $Id: hxisgdsff.html,v 1.2 2012/07/31 17:40:27 dhon Exp $
+$Name:  $ $Id: hxisgdsff.html,v 1.2 2012/07/31 17:40:27 dhon Exp $
+$Name:  $ $Id: hxisgdsff.html,v 1.2 2012/07/31 17:40:27 dhon Exp $
+$Name:  $ $Id: hxisgdsff.html,v 1.2 2012/07/31 17:40:27 dhon Exp $
+ 
+</pre>
+  </body>
+</html>
